@@ -6,6 +6,8 @@
   <title>Sudagaran Student Achievements</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Chart.js -->
@@ -138,7 +140,11 @@
   <script>
     // --- KONFIGURASI APLIKASI ---
     // GANTI URL INI SETELAH DEPLOY GOOGLE APPS SCRIPT
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzxIsGt3L3RE9mWkKVYDLGqHcWuKq5yUB61PSS0YQ3J7JW2r11vZUk6OWueOn6LPpfNaw/exec"; 
+    // --- KONFIGURASI SUPABASE ---
+    const SUPABASE_URL = 'https://uocrmkckxdakrynfmtid.supabase.co'; // GANTI INI
+    const SUPABASE_ANON_KEY = 'sb_publishable_IjDaAuYXIkdwxsZSHrMWbg_6PUjboax'; // GANTI INI
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // --- STATE MANAGEMENT ---
     const app = {
@@ -188,29 +194,53 @@
 
       // --- AUTHENTICATION ---
       handleLogin: async function(e) {
-        e.preventDefault();
-        const nis = document.getElementById('login-nis').value;
-        const password = document.getElementById('login-password').value;
+    e.preventDefault();
+    const nis = document.getElementById('login-nis').value;
+    const password = document.getElementById('login-password').value;
 
-        try {
-          const res = await this.api('login', { nis, password });
-          this.state.token = res.token;
-          this.state.user = res.user;
-          sessionStorage.setItem('token', res.token);
-          sessionStorage.setItem('user', JSON.stringify(res.user));
-          
-          this.toast('Berhasil masuk!', 'success');
-          this.setupLayout();
-          
-          if (this.state.user.role === 'admin') this.navigate('admin-dashboard');
-          else this.navigate('student-dashboard');
-        } catch (err) {
-          // Error handled by api wrapper
+    this.showLoader();
+    try {
+        // Query langsung ke tabel students di Supabase
+        const { data, error } = await supabase
+            .from('students')
+            .select('*')
+            .eq('nis', nis)
+            .eq('password', password)
+            .single(); // Harap 1 baris hasil
+
+        if (error || !data) {
+            throw new Error("NIS atau Password salah.");
         }
-      },
 
-      logout: function() {
-        sessionStorage.clear();
+        if (data.aktif !== true) {
+            throw new Error("Akun tidak aktif.");
+        }
+
+        // Set state
+        this.state.user = {
+            nis: data.nis,
+            nama: data.nama,
+            kelas: data.kelas,
+            role: data.role
+        };
+        
+        // Buat token dummy untuk menjaga struktur state frontend (karena tidak pakai Supabase Auth resmi)
+        this.state.token = "sb-" + data.nis + "-" + Date.now();
+        sessionStorage.setItem('token', this.state.token);
+        sessionStorage.setItem('user', JSON.stringify(this.state.user));
+        
+        this.toast('Berhasil masuk!', 'success');
+        this.setupLayout();
+        
+        if (this.state.user.role === 'admin') this.navigate('admin-dashboard');
+        else this.navigate('student-dashboard');
+        
+    } catch (err) {
+        this.toast(err.message, 'error');
+    } finally {
+        this.hideLoader();
+    }
+},
         this.state.token = null;
         this.state.user = null;
         document.getElementById('login-view').classList.remove('hide');
