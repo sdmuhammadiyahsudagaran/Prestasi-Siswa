@@ -6,8 +6,6 @@
   <title>Sudagaran Student Achievements</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Supabase JS Client -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- Chart.js -->
@@ -110,41 +108,91 @@
         <p class="text-slate-500 text-sm">Masuk dengan NIS / Akun Admin Anda</p>
       </div>
       <form id="login-form" onsubmit="app.handleLogin(event)">
-    <!-- Input NIS -->
-    <div class="mb-4">
-        <label class="block text-sm font-medium text-slate-700 mb-1">NIS / Username</label>
-        <input type="text" id="login-nis" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-brand-blue">
-    </div>
-
-    <!-- Input Password -->
-    <div class="mb-6 relative">
-        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
-        <div class="relative">
-            <input type="password" id="login-password" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-brand-blue pr-10">
-            <!-- Tombol Show/Hide Password -->
-            <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-700">
-                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-                </svg>
-            </button>
+        <!-- Input NIS -->
+        <div class="mb-4">
+            <label class="block text-sm font-medium text-slate-700 mb-1">NIS / Username</label>
+            <input type="text" id="login-nis" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-brand-blue">
         </div>
-    </div>
 
-    <!-- Tombol Masuk -->
-    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
-        Masuk
-    </button>
-</form>
+        <!-- Input Password -->
+        <div class="mb-6 relative">
+            <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+            <div class="relative">
+                <input type="password" id="login-password" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue focus:border-brand-blue pr-10">
+                <!-- Tombol Show/Hide Password -->
+                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-700">
+                    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Tombol Masuk -->
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200">
+            Masuk
+        </button>
+      </form>
+    </div>
+  </div>
 
   <script>
+    // --- KAMUS DATA BERJENJANG ---
+    const kamusLomba = {
+        "Akademik": {
+            "Mata Pelajaran": ["Matematika", "IPA/Sains", "Bahasa Indonesia", "Bahasa Inggris", "Agama/PAI", "Robotika", "Lainnya"]
+        },
+        "Non Akademik": {
+            "Seni": ["Tilawah/MTQ", "Menggambar", "Melukis", "Menyanyi", "Menari", "Kaligrafi", "Puisi/Pidato", "Lainnya"],
+            "Olahraga": ["Sepak Bola/Futsal", "Bulu Tangkis", "Renang", "Atletik", "Pencak Silat", "Catur", "Lainnya"]
+        }
+    };
+
+    function updateBidang() {
+        const kategori = document.getElementById('kategori').value;
+        const bidangSelect = document.getElementById('bidang');
+        const cabangSelect = document.getElementById('cabangLomba');
+
+        bidangSelect.innerHTML = '<option value="">-- Pilih Bidang --</option>';
+        cabangSelect.innerHTML = '<option value="">Pilih Bidang Dahulu</option>';
+        bidangSelect.classList.remove('bg-slate-50');
+
+        if (kategori && kamusLomba[kategori]) {
+            Object.keys(kamusLomba[kategori]).forEach(bidang => {
+                const option = document.createElement('option');
+                option.value = bidang;
+                option.textContent = bidang;
+                bidangSelect.appendChild(option);
+            });
+        } else {
+            bidangSelect.classList.add('bg-slate-50');
+            cabangSelect.classList.add('bg-slate-50');
+        }
+    }
+
+    function updateCabang() {
+        const kategori = document.getElementById('kategori').value;
+        const bidang = document.getElementById('bidang').value;
+        const cabangSelect = document.getElementById('cabangLomba');
+
+        cabangSelect.innerHTML = '<option value="">-- Pilih Cabang Lomba --</option>';
+        cabangSelect.classList.remove('bg-slate-50');
+
+        if (kategori && bidang && kamusLomba[kategori][bidang]) {
+            kamusLomba[kategori][bidang].forEach(cabang => {
+                const option = document.createElement('option');
+                option.value = cabang;
+                option.textContent = cabang;
+                cabangSelect.appendChild(option);
+            });
+        } else {
+            cabangSelect.classList.add('bg-slate-50');
+        }
+    }
+
     // --- KONFIGURASI APLIKASI ---
-    // GANTI URL INI SETELAH DEPLOY GOOGLE APPS SCRIPT
-    // --- KONFIGURASI SUPABASE ---
-    const SUPABASE_URL = 'https://uocrmkckxdakrynfmtid.supabase.co'; // GANTI INI
-    const SUPABASE_ANON_KEY = 'sb_publishable_IjDaAuYXIkdwxsZSHrMWbg_6PUjboax'; // GANTI INI
-    
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzxIsGt3L3RE9mWkKVYDLGqHcWuKq5yUB61PSS0YQ3J7JW2r11vZUk6OWueOn6LPpfNaw/exec"; 
 
     // --- STATE MANAGEMENT ---
     const app = {
@@ -158,7 +206,6 @@
         }
       },
 
-      // --- INIT ---
       init: function() {
         if (this.state.token && this.state.user) {
           this.setupLayout();
@@ -170,7 +217,6 @@
         }
       },
 
-      // --- API WRAPPER ---
       api: async function(action, data = {}) {
         this.showLoader();
         try {
@@ -178,7 +224,7 @@
           const response = await fetch(GAS_URL, {
             method: 'POST',
             body: JSON.stringify(payload),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' } // text/plain prevents CORS preflight in simple cases
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
           });
           const res = await response.json();
           if (res.status === 'error') throw new Error(res.message);
@@ -192,55 +238,30 @@
         }
       },
 
-      // --- AUTHENTICATION ---
       handleLogin: async function(e) {
-    e.preventDefault();
-    const nis = document.getElementById('login-nis').value;
-    const password = document.getElementById('login-password').value;
+        e.preventDefault();
+        const nis = document.getElementById('login-nis').value;
+        const password = document.getElementById('login-password').value;
 
-    this.showLoader();
-    try {
-        // Query langsung ke tabel students di Supabase
-        const { data, error } = await supabase
-            .from('students')
-            .select('*')
-            .eq('nis', nis)
-            .eq('password', password)
-            .single(); // Harap 1 baris hasil
-
-        if (error || !data) {
-            throw new Error("NIS atau Password salah.");
+        try {
+          const res = await this.api('login', { nis, password });
+          this.state.token = res.token;
+          this.state.user = res.user;
+          sessionStorage.setItem('token', res.token);
+          sessionStorage.setItem('user', JSON.stringify(res.user));
+          
+          this.toast('Berhasil masuk!', 'success');
+          this.setupLayout();
+          
+          if (this.state.user.role === 'admin') this.navigate('admin-dashboard');
+          else this.navigate('student-dashboard');
+        } catch (err) {
+            // error ditangani oleh this.api
         }
+      },
 
-        if (data.aktif !== true) {
-            throw new Error("Akun tidak aktif.");
-        }
-
-        // Set state
-        this.state.user = {
-            nis: data.nis,
-            nama: data.nama,
-            kelas: data.kelas,
-            role: data.role
-        };
-        
-        // Buat token dummy untuk menjaga struktur state frontend (karena tidak pakai Supabase Auth resmi)
-        this.state.token = "sb-" + data.nis + "-" + Date.now();
-        sessionStorage.setItem('token', this.state.token);
-        sessionStorage.setItem('user', JSON.stringify(this.state.user));
-        
-        this.toast('Berhasil masuk!', 'success');
-        this.setupLayout();
-        
-        if (this.state.user.role === 'admin') this.navigate('admin-dashboard');
-        else this.navigate('student-dashboard');
-        
-    } catch (err) {
-        this.toast(err.message, 'error');
-    } finally {
-        this.hideLoader();
-    }
-},
+      logout: function() {
+        sessionStorage.clear();
         this.state.token = null;
         this.state.user = null;
         document.getElementById('login-view').classList.remove('hide');
@@ -248,7 +269,6 @@
         document.getElementById('login-form').reset();
       },
 
-      // --- UI HELPERS ---
       setupLayout: function() {
         document.getElementById('login-view').classList.add('hide');
         document.getElementById('app-wrapper').classList.remove('hide');
@@ -281,7 +301,6 @@
       navigate: function(viewId) {
         this.state.currentView = viewId;
         
-        // Update Active Nav
         document.querySelectorAll('#nav-menu button').forEach(btn => {
           btn.classList.remove('bg-brand-blue', 'text-white');
           btn.classList.add('text-slate-300');
@@ -292,9 +311,8 @@
           activeBtn.classList.add('bg-brand-blue', 'text-white');
         }
 
-        // Render View
         const container = document.getElementById('view-container');
-        container.innerHTML = ''; // Clear
+        container.innerHTML = '';
 
         switch(viewId) {
           case 'student-dashboard': this.renderStudentDashboard(container); break;
@@ -326,7 +344,6 @@
         }, 4000);
       },
 
-      // --- STUDENT VIEWS ---
       renderStudentDashboard: async function(container) {
         container.innerHTML = `
           <div class="flex justify-between items-center mb-6">
@@ -381,7 +398,6 @@
             </tr>
           `).join('');
         } catch (e) {
-          // error handled
         }
       },
 
@@ -398,7 +414,7 @@
       renderStudentForm: function(container) {
         const u = this.state.user;
         container.innerHTML = `
-          <div class="max-w-3xl mx-auto">
+          <div class="max-w-4xl mx-auto">
             <button onclick="app.navigate('student-dashboard')" class="text-slate-500 hover:text-brand-navy mb-4 inline-flex items-center gap-2">
               <i class="fas fa-arrow-left"></i> Kembali
             </button>
@@ -406,18 +422,17 @@
               <h2 class="text-2xl font-bold text-brand-navy border-b pb-4 mb-6">Formulir Pengajuan Prestasi</h2>
               
               <form id="achievement-form" onsubmit="app.submitAchievement(event)">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <!-- Data Siswa (Readonly) -->
-                  <div class="bg-slate-50 p-4 rounded-lg md:col-span-2 border border-slate-100">
-                    <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Data Siswa</p>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                      <div><span class="block text-slate-500">Nama:</span><span class="font-medium text-slate-800">${u.nama}</span></div>
-                      <div><span class="block text-slate-500">NIS:</span><span class="font-medium text-slate-800">${u.nis}</span></div>
-                      <div><span class="block text-slate-500">Kelas:</span><span class="font-medium text-slate-800">${u.kelas}</span></div>
-                    </div>
+                <!-- Data Siswa -->
+                <div class="bg-slate-50 p-4 rounded-lg mb-6 border border-slate-100">
+                  <p class="text-xs text-slate-500 uppercase font-semibold mb-2">Data Siswa</p>
+                  <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                    <div><span class="block text-slate-500">Nama:</span><span class="font-medium text-slate-800">${u.nama}</span></div>
+                    <div><span class="block text-slate-500">NIS:</span><span class="font-medium text-slate-800">${u.nis}</span></div>
+                    <div><span class="block text-slate-500">Kelas:</span><span class="font-medium text-slate-800">${u.kelas}</span></div>
                   </div>
+                </div>
 
-                  <!-- Form Fields -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Tahun Ajaran <span class="text-red-500">*</span></label>
                     <select id="tahunAjaran" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none">
@@ -428,32 +443,64 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Nama Event / Kejuaraan <span class="text-red-500">*</span></label>
-                    <input type="text" id="namaEvent" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none" placeholder="Contoh: Olimpiade Matematika Nasional">
+                    <input type="text" id="namaEvent" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none" placeholder="Contoh: Olimpiade Nasional">
                   </div>
-                  
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Kategori <span class="text-red-500">*</span></label>
-                    <select id="kategori" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none">
-                      <option value="" disabled selected>Pilih Kategori</option>
-                      <option value="Akademik">Akademik</option>
-                      <option value="Non Akademik">Non Akademik</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Cabang Lomba <span class="text-red-500">*</span></label>
-                    <select id="cabangLomba" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none">
-                      <option value="" disabled selected>Pilih Cabang</option>
-                      <option value="Matematika">Matematika</option>
-                      <option value="IPA">IPA</option>
-                      <option value="Bahasa Inggris">Bahasa Inggris</option>
-                      <option value="Tahfiz">Tahfiz</option>
-                      <option value="Pidato">Pidato</option>
-                      <option value="Seni">Seni / Menggambar</option>
-                      <option value="Olahraga">Olahraga</option>
-                      <option value="Lainnya">Lainnya</option>
-                    </select>
-                  </div>
+                </div>
 
+                <!-- Grid Kategori Berjenjang -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label for="kategori" class="block text-sm font-medium text-slate-700 mb-1">Kategori <span class="text-red-500">*</span></label>
+                        <select id="kategori" required onchange="updateBidang()" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue">
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="Akademik">Akademik</option>
+                            <option value="Non Akademik">Non Akademik</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="bidang" class="block text-sm font-medium text-slate-700 mb-1">Bidang <span class="text-red-500">*</span></label>
+                        <select id="bidang" required onchange="updateCabang()" class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue bg-slate-50">
+                            <option value="">Pilih Kategori Dahulu</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="cabangLomba" class="block text-sm font-medium text-slate-700 mb-1">Cabang Lomba <span class="text-red-500">*</span></label>
+                        <select id="cabangLomba" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue bg-slate-50">
+                            <option value="">Pilih Bidang Dahulu</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Grid Detail Pelaksanaan -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label for="sifatKejuaraan" class="block text-sm font-medium text-slate-700 mb-1">Sifat Kejuaraan <span class="text-red-500">*</span></label>
+                        <select id="sifatKejuaraan" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue">
+                            <option value="">-- Pilih --</option>
+                            <option value="Berjenjang">Berjenjang (Tahapan)</option>
+                            <option value="Tidak Berjenjang">Tidak Berjenjang (Final)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="jenisPeserta" class="block text-sm font-medium text-slate-700 mb-1">Jenis Peserta <span class="text-red-500">*</span></label>
+                        <select id="jenisPeserta" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue">
+                            <option value="">-- Pilih --</option>
+                            <option value="Individu">Individu / Perorangan</option>
+                            <option value="Beregu">Beregu / Tim</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="pelaksanaan" class="block text-sm font-medium text-slate-700 mb-1">Pelaksanaan <span class="text-red-500">*</span></label>
+                        <select id="pelaksanaan" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue">
+                            <option value="">-- Pilih --</option>
+                            <option value="Luring">Luring (Tatap Muka)</option>
+                            <option value="Daring">Daring (Online)</option>
+                            <option value="Hybrid">Hybrid (Keduanya)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1">Tingkat Kejuaraan <span class="text-red-500">*</span></label>
                     <select id="tingkat" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-blue outline-none">
@@ -530,7 +577,6 @@
         const file = e.target.files[0];
         if (!file) return;
         
-        // Validasi Ukuran (5MB untuk menjaga Payload limit GAS tidak timeout)
         if (file.size > 5 * 1024 * 1024) {
           this.toast('Ukuran file terlalu besar. Maksimal 5MB.', 'error');
           e.target.value = '';
@@ -548,7 +594,6 @@
           return;
         }
 
-        // Convert file to Base64
         const reader = new FileReader();
         reader.readAsDataURL(this.selectedFile);
         reader.onload = async () => {
@@ -556,7 +601,11 @@
             tahunAjaran: document.getElementById('tahunAjaran').value,
             namaEvent: document.getElementById('namaEvent').value,
             kategori: document.getElementById('kategori').value,
+            bidang: document.getElementById('bidang').value,
             cabangLomba: document.getElementById('cabangLomba').value,
+            sifatKejuaraan: document.getElementById('sifatKejuaraan').value,
+            jenisPeserta: document.getElementById('jenisPeserta').value,
+            pelaksanaan: document.getElementById('pelaksanaan').value,
             tingkat: document.getElementById('tingkat').value,
             capaian: document.getElementById('capaian').value,
             penyelenggara: document.getElementById('penyelenggara').value,
@@ -572,9 +621,7 @@
             this.toast('Pengajuan berhasil dikirim!', 'success');
             this.selectedFile = null;
             this.navigate('student-dashboard');
-          } catch (err) {
-            // error handled
-          }
+          } catch (err) {}
         };
       },
 
@@ -625,7 +672,6 @@
           `;
           document.getElementById('stats-cards').innerHTML = cardsHTML;
 
-          // Render Charts
           new Chart(document.getElementById('chartKategori'), {
             type: 'doughnut',
             data: {
@@ -716,7 +762,6 @@
           </div>
         `;
         
-        // Initial fetch with default "Menunggu Verifikasi" filter
         this.fetchAdminData();
       },
 
@@ -741,7 +786,7 @@
 
         try {
           const data = await this.api('getAllAchievements', { filters });
-          this.state.data.achievements = data; // store globally for modal access
+          this.state.data.achievements = data;
 
           if (data.length === 0) {
             tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada data ditemukan untuk filter ini.</td></tr>`;
@@ -842,7 +887,7 @@
           await this.api('updateAchievementStatus', { id, status, catatan });
           this.toast('Status berhasil diperbarui.', 'success');
           document.getElementById('verify-modal').classList.add('hide');
-          this.fetchAdminData(); // refresh list
+          this.fetchAdminData();
         } catch (e) {}
       },
 
@@ -931,10 +976,9 @@
       },
 
       generateCSV: function(data, filters) {
-        // Prepare headers (excluding internal IDs)
         const headers = ["No", "Tahun Ajaran", "NIS", "Nama Siswa", "Kelas", "Kategori", "Cabang Lomba", "Nama Event", "Capaian", "Tingkat", "Penyelenggara", "Tanggal Pelaksanaan", "Status"];
         
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF"; // UTF-8 BOM
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
         csvContent += headers.join(",") + "\r\n";
 
         data.forEach((row, index) => {
@@ -963,23 +1007,20 @@
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF('landscape');
         
-        // Header
         doc.setFont("helvetica", "bold");
         doc.setFontSize(16);
-        doc.setTextColor(21, 43, 74); // Navy
+        doc.setTextColor(21, 43, 74); 
         doc.text("LAPORAN PRESTASI SISWA - SD SUDAGARAN", 14, 20);
         
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(100, 100, 100);
         
-        // Filter Text
         let filterText = `Tahun: ${filters.tahunAjaran || 'Semua'} | Kategori: ${filters.kategori || 'Semua'} | Tingkat: ${filters.tingkat || 'Semua'} | Status: ${filters.status || 'Semua'}`;
         doc.text(`Filter diterapkan: ${filterText}`, 14, 28);
         doc.text(`Total Data: ${data.length} pengajuan`, 14, 34);
         doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID', {timeZone: 'Asia/Jakarta'})}`, 14, 40);
 
-        // Table
         const tableColumn = ["No", "NIS", "Nama Siswa", "Kelas", "Kategori", "Cabang Lomba", "Nama Event", "Capaian", "Tingkat", "Status"];
         const tableRows = [];
 
@@ -996,7 +1037,7 @@
           body: tableRows,
           startY: 45,
           styles: { fontSize: 8, font: "helvetica", cellPadding: 2 },
-          headStyles: { fillColor: [49, 94, 232], textColor: 255 }, // Brand Blue
+          headStyles: { fillColor: [49, 94, 232], textColor: 255 },
           alternateRowStyles: { fillColor: [248, 250, 252] },
           didDrawPage: function (data) {
             let str = "Halaman " + doc.internal.getNumberOfPages();
@@ -1011,58 +1052,26 @@
       }
     };
 
-    document.getElementById('togglePassword').addEventListener('click', function () {
-    const passwordInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
-    
-    if (passwordInput.type === 'password') {
-        // Ubah ke mode teks
-        passwordInput.type = 'text';
-        // Ubah ikon menjadi mata dicoret
-        eyeIcon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.978 9.978 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-        `;
-    } else {
-        // Kembalikan ke mode password
-        passwordInput.type = 'password';
-        // Kembalikan ikon ke mata terbuka
-        eyeIcon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-        `;
-    }
-});
+    // INIT & EVENT LISTENERS TUNGGAL
+    document.addEventListener('DOMContentLoaded', function() {
+        app.init();
 
-    // Logika UI: Toggle Show/Hide Password
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('togglePassword');
-    // ID ini WAJIB sama dengan yang ada di tag <input> HTML Anda
-    const passwordInput = document.getElementById('login-password'); 
-    const eyeIcon = document.getElementById('eyeIcon');
+        const toggleBtn = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('login-password'); 
+        const eyeIcon = document.getElementById('eyeIcon');
 
-    if (toggleBtn && passwordInput && eyeIcon) {
-        toggleBtn.addEventListener('click', function () {
-            if (passwordInput.type === 'password') {
-                // Ubah ke mode teks (password terlihat)
-                passwordInput.type = 'text';
-                // Ganti SVG menjadi mata dicoret
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.978 9.978 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                `;
-            } else {
-                // Kembalikan ke mode password (titik-titik)
-                passwordInput.type = 'password';
-                // Ganti SVG menjadi mata terbuka
-                eyeIcon.innerHTML = `
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-                `;
-            }
-        });
-    } else {
-        console.warn("Elemen toggle password tidak ditemukan di DOM. Pastikan ID HTML Anda benar.");
-    }
-});
+        if (toggleBtn && passwordInput && eyeIcon) {
+            toggleBtn.addEventListener('click', function () {
+                if (passwordInput.type === 'password') {
+                    passwordInput.type = 'text';
+                    eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.978 9.978 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />`;
+                } else {
+                    passwordInput.type = 'password';
+                    eyeIcon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />`;
+                }
+            });
+        }
+    });
   </script>
 </body>
 </html>
